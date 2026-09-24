@@ -59,7 +59,8 @@ export default function Hero() {
     let gen = 0 // bumps on theme switch so the old set stops loading
     let shown = null, fade = null, idx = 0
 
-    let W = 0, H = 0, dpr = 1, top = 0, total = 1, narrow = false
+    const introEl = el.querySelector('.intro')
+    let W = 0, H = 0, dpr = 1, top = 0, total = 1, narrow = false, introTop = 0
     let cur = null, target = 0, raf = 0, last = 0, lastKey = ''
 
     const tag = (img, t) => { img.theme = t; return img }
@@ -126,6 +127,7 @@ export default function Hero() {
       W = box.clientWidth
       H = box.clientHeight
       narrow = matchMedia('(max-aspect-ratio: 6/5)').matches // same breakpoint as styles.css
+      introTop = introEl.offsetTop // phones: the intro card's top edge, the box must fit above it
       cv.width = Math.round(W * dpr)
       cv.height = Math.round(H * dpr)
       top = el.getBoundingClientRect().top + scrollY - (parseFloat(getComputedStyle(box).top) || 0)
@@ -156,9 +158,13 @@ export default function Hero() {
     function avatar() {
       // Desktop: text + box share a centred 1280px-wide column (matches .intro's --tl in CSS).
       const edge = Math.max(clamp(W * 0.05, 16, 72), (W - 1280) / 2)
-      const S = narrow ? Math.min(W * 0.56, H * 0.3) : Math.min(W * 0.34, H * 0.62, 560)
+      // Phones: the box takes whatever height is left above the intro card (16px clear of it),
+      // centred in that space, so the two never overlap however tall the card gets.
+      const S = narrow
+        ? clamp(Math.min(W * 0.56, H * 0.3, introTop - 32), 80, W)
+        : Math.min(W * 0.34, H * 0.62, 560)
       const x = narrow ? (W - S) / 2 : W - edge - S
-      const y = narrow ? H * 0.08 : (H - S) / 2 // centred beside the intro text
+      const y = narrow ? Math.max(8, (introTop - 16 - S) / 2) : (H - S) / 2 // desktop: centred beside the intro text
       const fw = S / 0.36, fh = (fw * 9) / 16 // box spans ~36% of the frame width
       return { edge, clip: { x, y, w: S, h: S }, img: { x: x + S / 2 - 0.7 * fw, y: y - 0.005 * fh, w: fw, h: fh } }
     }
@@ -265,6 +271,7 @@ export default function Hero() {
     const ro = new ResizeObserver(resize)
     ro.observe(box)
     ro.observe(el)
+    ro.observe(introEl) // card height changes (fonts, heat map) move the box
     addEventListener('scroll', onScroll, { passive: true })
     const mo = new MutationObserver(onTheme)
     mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })

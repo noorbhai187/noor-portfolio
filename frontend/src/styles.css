@@ -688,3 +688,9 @@ main section#projects { max-width: 1040px; }
   .scroll-hint i, .cur, .status i { animation: none; }
   .meteors { display: none; }
 }
+
+/* Short phones (e.g. iPhone SE with browser bars): drop the heat map from the intro card so
+   the avatar box still fits above it. */
+@media (max-aspect-ratio: 6/5) and (max-height: 600px) {
+  .intro .contrib { display: none; }
+}
