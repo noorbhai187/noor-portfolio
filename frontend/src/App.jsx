@@ -374,8 +374,8 @@ export default function App() {
           <h2>Say hi.</h2>
           <p className="sub"><span className="cmt">// </span>Open to internships, web projects and anything with a pipeline in it.</p>
           <div className="contact-grid">
-            <ContactLinks />
             <ContactForm />
+            <ContactLinks />
           </div>
         </Reveal>
       </main>

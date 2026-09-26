@@ -491,7 +491,7 @@ h2 {
 .feature-stats dt { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.03em; }
 .feature-stats dd { margin: 0; font-size: 10.5px; color: var(--dim); }
 
-/* Contact: a row of icon buttons, then the full-width editor-window form */
+/* Contact: the full-width editor-window form, then a row of icon buttons under it */
 main section#contact { max-width: 1040px; }
 .contact-grid { display: grid; gap: 24px; margin-top: 28px; }
 
