@@ -177,13 +177,14 @@ function ContactLinks() {
     <ul className="contacts">
       {CONTACTS.map((c) => (
         <li key={c.key}>
-          <a className={`contact contact-${c.key}`} href={c.href} {...(c.external ? { target: '_blank', rel: 'noreferrer' } : {})}>
-            <span className="contact-icon">{c.key === 'github' ? GITHUB : ICON[c.key]}</span>
-            <span className="contact-text">
-              <span className="contact-label">{c.label}</span>
-              <span className="contact-value">{c.value}</span>
-            </span>
-            <span className="contact-go">{ICON.arrow}</span>
+          <a
+            className={`contact contact-${c.key}`}
+            href={c.href}
+            aria-label={`${c.label}: ${c.value}`}
+            title={`${c.label}: ${c.value}`}
+            {...(c.external ? { target: '_blank', rel: 'noreferrer' } : {})}
+          >
+            {c.key === 'github' ? GITHUB : ICON[c.key]}
           </a>
         </li>
       ))}
@@ -237,7 +238,7 @@ function ContactForm() {
         </label>
         <label className="field full">
           <span>message <em>{chars}/5000</em></span>
-          <textarea name="message" required maxLength={5000} rows={5} placeholder="What are you building?" disabled={busy} onChange={(e) => setChars(e.target.value.length)} />
+          <textarea name="message" required maxLength={5000} rows={9} placeholder="What are you building?" disabled={busy} onChange={(e) => setChars(e.target.value.length)} />
         </label>
         {/* honeypot: hidden from people, bots fill it */}
         <input className="hp" name="company" tabIndex={-1} autoComplete="off" aria-hidden="true" />
