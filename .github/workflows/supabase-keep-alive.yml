@@ -1,26 +1,28 @@
-# Supabase's free plan pauses a project after ~7 days without activity, which breaks the
-# contact form. A tiny read every 3 days keeps it awake. Uses the public values already in
-# frontend/.env.production (the anon key ships in the site's JavaScript anyway).
+# Supabase's free plan pauses a project after ~7 days of low activity, which breaks the
+# contact form. A read every 3 days wasn't enough (it was paused anyway in Nov 2026), so this
+# makes a small write every day: public.keepalive() updates one timestamp row.
+# Uses the public values already in frontend/.env.production.
 name: Supabase keep-alive
 
 on:
   schedule:
-    - cron: '17 6 */3 * *'   # 06:17 UTC every third day
-  workflow_dispatch:          # "Run workflow" button for a manual check
+    - cron: '17 6 * * *'   # 06:17 UTC daily
+  workflow_dispatch:        # "Run workflow" button for a manual check
 
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           sparse-checkout: frontend/.env.production
           sparse-checkout-cone-mode: false
-      - name: Ping database
+      - name: Write keep-alive timestamp
         run: |
           set -a; . frontend/.env.production; set +a
-          code=$(curl -s -o /dev/null -w '%{http_code}' \
-            "$VITE_SUPABASE_URL/rest/v1/contact_messages?select=id&limit=1" \
-            -H "apikey: $VITE_SUPABASE_ANON_KEY" -H "Authorization: Bearer $VITE_SUPABASE_ANON_KEY")
-          echo "Supabase responded $code"
-          test "$code" = 200
+          curl -sS --fail-with-body --retry 3 --retry-delay 20 --retry-all-errors \
+            -X POST "$VITE_SUPABASE_URL/rest/v1/rpc/keepalive" \
+            -H "apikey: $VITE_SUPABASE_ANON_KEY" -H "Authorization: Bearer $VITE_SUPABASE_ANON_KEY" \
+            -H 'Content-Type: application/json' -d '{}'
+          echo
+          echo "If this fails with 'Could not resolve host', the project is paused: restore it in the Supabase dashboard."
